@@ -52,5 +52,58 @@ describe('ProductService Tests', () => {
 		});
 		expect(result).toEqual(product);
 	});
+
+	const productsToTest: Array<Product & { expectedAvailableAfterOrder: number }> = [
+		{
+		id: 1,
+		available: 5,
+		leadTime: 2,
+		name: 'Chair 2450',
+		type: 'NORMAL',
+		expiryDate: null,
+		seasonStartDate: null,
+		seasonEndDate: null,
+		expectedAvailableAfterOrder: 4,
+		},
+		{
+		id: 2,
+		available: 5,
+		leadTime: 2,
+		name: 'Kiwi',
+		type: 'SEASONAL',
+		expiryDate: null,
+		seasonStartDate: null,
+		seasonEndDate: null,
+		expectedAvailableAfterOrder: 4,
+		},
+		{
+		id: 3,
+		available: 5,
+		leadTime: 0,
+		name: 'Milk',
+		type: 'EXPIRED',
+		expiryDate: null,
+		seasonStartDate: null,
+		seasonEndDate: null,
+		expectedAvailableAfterOrder: 4,
+		},
+	];
+
+	productsToTest.forEach((p) => {
+		it(`should decrease available correctly for ${p.type} product`, async () => {
+			await databaseMock.insert(products).values(p);
+
+			if (p.type === 'NORMAL') await productService.handleNormalProduct(p);
+			if (p.type === 'SEASONAL') await productService.handleSeasonalProduct(p);
+			if (p.type === 'EXPIRED') await productService.handleExpiredProduct(p);
+
+			const updated_p = await databaseMock.query.products.findFirst({
+			where: (prod, { eq }) => eq(prod.id, p.id),
+			});
+
+			expect(updated_p!.available).toBe(p.expectedAvailableAfterOrder);
+			});
+		});
+	
 });
 
