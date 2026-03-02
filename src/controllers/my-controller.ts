@@ -51,14 +51,7 @@ export const myController = fastifyPlugin(async server => {
 					}
 
 					case 'EXPIRABLE': {
-						const currentDate = new Date();
-						if (p.available > 0 && p.expiryDate! > currentDate) {
-							p.available -= 1;
-							await dbse.update(products).set(p).where(eq(products.id, p.id));
-						} else {
-							await ps.handleExpiredProduct(p);
-						}
-
+						await ps.handleExpiredProduct(p);
 						break;
 					}
 				}
