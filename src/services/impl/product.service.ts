@@ -21,13 +21,13 @@ export class ProductService {
 
 	public async handleSeasonalProduct(p: Product): Promise<void> {
 		const currentDate = new Date();
-		const d = 1000 * 60 * 60 * 24;
-		if (new Date(currentDate.getTime() + (p.leadTime * d)) > p.seasonEndDate!) {
+		const daysInMs = 1000 * 60 * 60 * 24;
+		const dateWithDelay = new Date(currentDate.getTime() + (p.leadTime * daysInMs));
+
+		const outOfSeason = (dateWithDelay > p.seasonEndDate!) || (currentDate < p.seasonStartDate!);
+		if (outOfSeason) {
 			this.ns.sendOutOfStockNotification(p.name);
 			p.available = 0;
-			await this.db.update(products).set(p).where(eq(products.id, p.id));
-		} else if (p.seasonStartDate! > currentDate) {
-			this.ns.sendOutOfStockNotification(p.name);
 			await this.db.update(products).set(p).where(eq(products.id, p.id));
 		} else {
 			await this.notifyDelay(p.leadTime, p);
