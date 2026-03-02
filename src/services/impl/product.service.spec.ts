@@ -53,6 +53,9 @@ describe('ProductService Tests', () => {
 		expect(result).toEqual(product);
 	});
 
+	const now = new Date();
+	const future = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000);
+	const past = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
 	const productsToTest: Array<Product & { expectedAvailableAfterOrder: number }> = [
 		{
 		id: 1,
@@ -72,8 +75,8 @@ describe('ProductService Tests', () => {
 		name: 'Kiwi',
 		type: 'SEASONAL',
 		expiryDate: null,
-		seasonStartDate: null,
-		seasonEndDate: null,
+		seasonStartDate: past,
+		seasonEndDate: future,
 		expectedAvailableAfterOrder: 4,
 		},
 		{
@@ -82,7 +85,7 @@ describe('ProductService Tests', () => {
 		leadTime: 0,
 		name: 'Milk',
 		type: 'EXPIRED',
-		expiryDate: null,
+		expiryDate: future,
 		seasonStartDate: null,
 		seasonEndDate: null,
 		expectedAvailableAfterOrder: 4,
