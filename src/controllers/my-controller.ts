@@ -42,19 +42,11 @@ export const myController = fastifyPlugin(async server => {
 				switch (p.type) {
 					case 'NORMAL': {
 						await ps.handleNormalProduct(p);
-
 						break;
 					}
 
 					case 'SEASONAL': {
-						const currentDate = new Date();
-						if (currentDate > p.seasonStartDate! && currentDate < p.seasonEndDate! && p.available > 0) {
-							p.available -= 1;
-							await dbse.update(products).set(p).where(eq(products.id, p.id));
-						} else {
-							await ps.handleSeasonalProduct(p);
-						}
-
+						await ps.handleSeasonalProduct(p);
 						break;
 					}
 

@@ -33,6 +33,15 @@ export class ProductService {
 
 	public async handleSeasonalProduct(p: Product): Promise<void> {
 		const currentDate = new Date();
+
+		if (currentDate > p.seasonStartDate! && currentDate < p.seasonEndDate! && p.available > 0){
+			p.available -= 1;
+			await this.db.update(products).set(p).where(eq(products.id, p.id));
+		}
+
+		if (p.available > 0) return;
+		// Handle case if out of season or not available anymore
+		
 		const daysInMs = 1000 * 60 * 60 * 24;
 		const dateWithDelay = new Date(currentDate.getTime() + (p.leadTime * daysInMs));
 
