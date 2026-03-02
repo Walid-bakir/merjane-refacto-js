@@ -2,12 +2,12 @@ import {
 	describe, it, expect, beforeEach,
 	afterEach,
 } from 'vitest';
-import {mockDeep, type DeepMockProxy} from 'vitest-mock-extended';
-import {type INotificationService} from '../notifications.port.js';
-import {createDatabaseMock, cleanUp} from '../../utils/test-utils/database-tools.ts.js';
-import {ProductService} from './product.service.js';
-import {products, type Product} from '@/db/schema.js';
-import {type Database} from '@/db/type.js';
+import { mockDeep, type DeepMockProxy } from 'vitest-mock-extended';
+import { type INotificationService } from '../notifications.port.js';
+import { createDatabaseMock, cleanUp } from '../../utils/test-utils/database-tools.ts.js';
+import { ProductService } from './product.service.js';
+import { products, type Product } from '@/db/schema.js';
+import { type Database } from '@/db/type.js';
 
 describe('ProductService Tests', () => {
 	let notificationServiceMock: DeepMockProxy<INotificationService>;
@@ -16,7 +16,7 @@ describe('ProductService Tests', () => {
 	let databaseName: string;
 
 	beforeEach(async () => {
-		({databaseMock, databaseName} = await createDatabaseMock());
+		({ databaseMock, databaseName } = await createDatabaseMock());
 		notificationServiceMock = mockDeep<INotificationService>();
 		productService = new ProductService({
 			ns: notificationServiceMock,
@@ -48,7 +48,7 @@ describe('ProductService Tests', () => {
 		expect(product.leadTime).toBe(15);
 		expect(notificationServiceMock.sendDelayNotification).toHaveBeenCalledWith(product.leadTime, product.name);
 		const result = await databaseMock.query.products.findFirst({
-			where: (product, {eq}) => eq(product.id, product.id),
+			where: (product, { eq }) => eq(product.id, product.id),
 		});
 		expect(result).toEqual(product);
 	});
@@ -58,37 +58,37 @@ describe('ProductService Tests', () => {
 	const past = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
 	const productsToTest: Array<Product & { expectedAvailableAfterOrder: number }> = [
 		{
-		id: 1,
-		available: 5,
-		leadTime: 2,
-		name: 'Chair 2450',
-		type: 'NORMAL',
-		expiryDate: null,
-		seasonStartDate: null,
-		seasonEndDate: null,
-		expectedAvailableAfterOrder: 4,
+			id: 1,
+			available: 5,
+			leadTime: 2,
+			name: 'Chair 2450',
+			type: 'NORMAL',
+			expiryDate: null,
+			seasonStartDate: null,
+			seasonEndDate: null,
+			expectedAvailableAfterOrder: 4,
 		},
 		{
-		id: 2,
-		available: 5,
-		leadTime: 2,
-		name: 'Kiwi',
-		type: 'SEASONAL',
-		expiryDate: null,
-		seasonStartDate: past,
-		seasonEndDate: future,
-		expectedAvailableAfterOrder: 4,
+			id: 2,
+			available: 5,
+			leadTime: 2,
+			name: 'Kiwi',
+			type: 'SEASONAL',
+			expiryDate: null,
+			seasonStartDate: past,
+			seasonEndDate: future,
+			expectedAvailableAfterOrder: 4,
 		},
 		{
-		id: 3,
-		available: 5,
-		leadTime: 0,
-		name: 'Milk',
-		type: 'EXPIRED',
-		expiryDate: future,
-		seasonStartDate: null,
-		seasonEndDate: null,
-		expectedAvailableAfterOrder: 4,
+			id: 3,
+			available: 5,
+			leadTime: 0,
+			name: 'Milk',
+			type: 'EXPIRED',
+			expiryDate: future,
+			seasonStartDate: null,
+			seasonEndDate: null,
+			expectedAvailableAfterOrder: 4,
 		},
 	];
 
@@ -101,12 +101,13 @@ describe('ProductService Tests', () => {
 			if (p.type === 'EXPIRED') await productService.handleExpiredProduct(p);
 
 			const updated_p = await databaseMock.query.products.findFirst({
-			where: (prod, { eq }) => eq(prod.id, p.id),
+				where: (prod, { eq }) => eq(prod.id, p.id),
 			});
 
 			expect(updated_p!.available).toBe(p.expectedAvailableAfterOrder);
-			});
 		});
-	
+	});
+
 });
 
+// TODO: add tests for expired and out of season cases
