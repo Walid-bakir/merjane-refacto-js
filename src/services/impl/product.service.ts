@@ -19,6 +19,18 @@ export class ProductService {
 		this.ns.sendDelayNotification(leadTime, p.name);
 	}
 
+	public async handleNormalProduct(p: Product): Promise<void> {
+		if (p.available > 0) {
+			p.available -= 1;
+			await this.db.update(products).set(p).where(eq(products.id, p.id));
+		} else {
+			const {leadTime} = p;
+			if (leadTime > 0) {
+				await this.notifyDelay(leadTime, p);
+			}
+		}
+	}
+
 	public async handleSeasonalProduct(p: Product): Promise<void> {
 		const currentDate = new Date();
 		const daysInMs = 1000 * 60 * 60 * 24;

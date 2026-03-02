@@ -41,15 +41,7 @@ export const myController = fastifyPlugin(async server => {
 			for (const {product: p} of productList) {
 				switch (p.type) {
 					case 'NORMAL': {
-						if (p.available > 0) {
-							p.available -= 1;
-							await dbse.update(products).set(p).where(eq(products.id, p.id));
-						} else {
-							const {leadTime} = p;
-							if (leadTime > 0) {
-								await ps.notifyDelay(leadTime, p);
-							}
-						}
+						await ps.handleNormalProduct(p);
 
 						break;
 					}
